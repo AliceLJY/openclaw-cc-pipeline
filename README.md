@@ -29,6 +29,25 @@ Bot → Discord User
     ↓ Include 📎 sessionId, user confirms, next round begins
 ```
 
+## Why not MAS?
+
+OpenClaw natively supports Multi-Agent System (MAS) via `sessions_spawn` — multiple agents working in parallel. We [used MAS](https://github.com/AliceLJY/openclaw-mas-guide) for article research before, but retired it in favor of this pipeline:
+
+> OpenClaw 原生支持 MAS 多 agent 协作，但我们已经用 CC Pipeline 替代了它。
+
+| | MAS (Multi-Agent) | CC Pipeline (This Repo) |
+|---|---|---|
+| **How it works** | Main agent spawns sub-agents inside OpenClaw | Bot dispatches tasks to external Claude Code CLI |
+| **Context cost** | Every sub-agent's full output stays in main agent's context — grows fast | Only result summaries flow back to Bot — stays lean |
+| **Multi-turn** | Native (it's just a Discord conversation) | Via sessionId persistence across rounds |
+| **Human control** | Agents auto-advance, user is passive | User confirms each round before next one starts |
+| **Equivalent stages** | Mode B (parallel) ≈ Stage 1 topic mining | Stage 1 mines from multiple sources in one CC session |
+| | Mode C (debate) ≈ Stage 2 cross-reference | Stage 2 cross-validates within the same CC context |
+
+**Bottom line**: MAS uses N agents × full context each. CC Pipeline uses 1 agent × full context, and only passes summaries back. For creative tasks (writing articles), the lighter approach wins.
+
+> 简单说：MAS 是 N 个 agent 各背一套上下文，CC Pipeline 是 1 个 CC 背上下文、只回传摘要。写文章这种创意任务，轻量方案更合适。
+
 ## Why?
 
 | Scenario | Without Pipeline | With Pipeline |
@@ -243,12 +262,25 @@ const effectiveTimeout = (timeout || CONFIG.defaultTimeout) + 30000;
 
 **Fix**: Separate timers — 15 min for incomplete tasks, 30 min for completed results.
 
+## How it Compares
+
+> 灵感来自 [win4r](https://github.com/win4r) 的两个项目，一个解决 agent 协作，一个解决 CC 回调。本仓库走了不同的路。
+
+| | [claude-code-hooks](https://github.com/win4r/claude-code-hooks) | [team-tasks](https://github.com/win4r/team-tasks) | **This Repo** |
+|---|---|---|---|
+| **Solves** | CC finish → notify chat | Multi-agent task orchestration | CC multi-turn via Bot |
+| **Callback** | CC native hooks (Stop event) | N/A (manager polls agents) | Worker → docker exec → OpenClaw CLI |
+| **Multi-turn** | Supports `--resume` but not the focus | N/A | Core feature (sessionId across rounds) |
+| **Agent count** | 1 CC instance | N agents (linear/DAG/debate) | 1 CC instance |
+| **Platform** | Telegram | Telegram | Discord |
+| **Human-in-loop** | No (auto-notify) | No (manager auto-advances) | Yes (user confirms each round) |
+
 ## Related Projects
 
 - [openclaw-worker](https://github.com/AliceLJY/openclaw-worker) — Task API + Worker implementation
 - [openclaw-config](https://github.com/AliceLJY/openclaw-config) — Bot configuration backup (with patches)
 - [content-alchemy](https://github.com/AliceLJY/content-alchemy) — WeChat article writing skill (real-world use case)
-- [openclaw-mas-guide](https://github.com/AliceLJY/openclaw-mas-guide) — Multi-Agent System (MAS) configuration guide
+- [openclaw-mas-guide](https://github.com/AliceLJY/openclaw-mas-guide) — Multi-Agent System (MAS) configuration guide (retired, replaced by this repo)
 
 ## License
 
