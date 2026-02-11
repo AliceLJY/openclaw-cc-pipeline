@@ -264,7 +264,9 @@ const effectiveTimeout = (timeout || CONFIG.defaultTimeout) + 30000;
 
 ## How it Compares
 
-> 灵感来自 [win4r](https://github.com/win4r) 的两个项目，一个解决 agent 协作，一个解决 CC 回调。本仓库走了不同的路。
+> Inspired by @win4r's two projects — one for agent orchestration, one for CC callbacks. This repo takes a different path.
+>
+> 灵感来自 [@win4r](https://github.com/win4r) 的两个项目，一个解决 agent 协作，一个解决 CC 回调。本仓库走了不同的路。
 
 | | [claude-code-hooks](https://github.com/win4r/claude-code-hooks) | [team-tasks](https://github.com/win4r/team-tasks) | **This Repo** |
 |---|---|---|---|
