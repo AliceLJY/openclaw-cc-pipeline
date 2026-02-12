@@ -1,52 +1,100 @@
 # OpenClaw CC Pipeline
 
-Multi-turn Claude Code orchestration via Discord Bot.
+**A Claude Code Skill** for multi-turn orchestration via Discord Bot.
 
-> 让 Discord Bot 通过多轮对话调度本地 Claude Code 执行复杂任务。
+> 一个 Claude Code Skill：让 Discord Bot 通过多轮对话调度本地 Claude Code 执行复杂任务。
+
+---
+
+## Installation
+
+Install as a Claude Code skill:
+
+```bash
+cd ~/.claude/skills && git clone https://github.com/AliceLJY/openclaw-cc-pipeline
+```
+
+That's it. Claude Code will automatically discover `SKILL.md` when the skill is invoked.
+
+> 安装完成后，Claude Code 会自动发现 `SKILL.md` 并在调用时读取指令。
+
+To update:
+
+```bash
+cd ~/.claude/skills/openclaw-cc-pipeline && git pull
+```
+
+### Prerequisites
+
+Before using this skill, you need the infrastructure running:
+
+- **[OpenClaw](https://github.com/openclaw/openclaw)** deployed (Discord Bot)
+- **[Claude Code](https://claude.com/claude-code)** installed (local CLI)
+- **[openclaw-worker](https://github.com/AliceLJY/openclaw-worker)** deployed (Task API + Worker)
+
+See the [Architecture](#architecture) section below for how these components connect.
+
+---
 
 ## What is this?
 
-An orchestration pattern: **Discord Bot (dispatcher) → Task API (relay) → Worker (runner) → Claude Code (executor) → Callback (result delivery)**.
+An orchestration pattern: **Discord Bot (dispatcher) -> Task API (relay) -> Worker (runner) -> Claude Code (executor) -> Callback (result delivery)**.
 
-> 一个编排模式：Bot 传话 → API 中转 → Worker 跑腿 → CC 干活 → 回调传结果。
+> 一个编排模式：Bot 传话 -> API 中转 -> Worker 跑腿 -> CC 干活 -> 回调传结果。
 
 It exposes Claude Code's powerful capabilities (skill system, session persistence, local file access) to a Discord Bot, enabling multi-turn interactive tasks.
 
 ```
 Discord User
-    ↓ "Write me an article"
+    | "Write me an article"
 OpenClaw Bot (Docker)
-    ↓ Format request with callbackChannel
+    | Format request with callbackChannel
 Task API (Local Docker)
-    ↓ Store task, auto-generate sessionId
+    | Store task, auto-generate sessionId
 Worker (Mac Node.js)
-    ↓ Poll → fetch task → claude --print --session-id xxx
+    | Poll -> fetch task -> claude --print --session-id xxx
 Claude Code CLI (Local)
-    ↓ Run skill → produce output
+    | Run skill -> produce output
 Worker
-    ↓ docker exec → OpenClaw CLI → send to Discord
-Bot → Discord User
-    ↓ Include 📎 sessionId, user confirms, next round begins
+    | docker exec -> OpenClaw CLI -> send to Discord
+Bot -> Discord User
+    | Include sessionId, user confirms, next round begins
 ```
+
+### Project Structure
+
+```
+SKILL.md                              # Core skill definition (Claude Code reads this)
+CLAUDE.md                             # Project context for Claude Code
+README.md                             # This file (human-readable documentation)
+examples/
+  bot-memory-snippet.md               # Ready-to-paste Bot memory config
+  content-alchemy-3-round.md          # 3-round Content Alchemy workflow details
+  openclaw-hooks-config.json          # OpenClaw hooks configuration snippet
+```
+
+---
 
 ## Why not MAS?
 
-OpenClaw natively supports Multi-Agent System (MAS) via `sessions_spawn` — multiple agents working in parallel. We [used MAS](https://github.com/AliceLJY/openclaw-mas-guide) for article research before, but retired it in favor of this pipeline:
+OpenClaw natively supports Multi-Agent System (MAS) via `sessions_spawn` -- multiple agents working in parallel. We [used MAS](https://github.com/AliceLJY/openclaw-mas-guide) for article research before, but retired it in favor of this pipeline:
 
 > OpenClaw 原生支持 MAS 多 agent 协作，但我们已经用 CC Pipeline 替代了它。
 
 | | MAS (Multi-Agent) | CC Pipeline (This Repo) |
 |---|---|---|
 | **How it works** | Main agent spawns sub-agents inside OpenClaw | Bot dispatches tasks to external Claude Code CLI |
-| **Context cost** | Every sub-agent's full output stays in main agent's context — grows fast | Only result summaries flow back to Bot — stays lean |
+| **Context cost** | Every sub-agent's full output stays in main agent's context -- grows fast | Only result summaries flow back to Bot -- stays lean |
 | **Multi-turn** | Native (it's just a Discord conversation) | Via sessionId persistence across rounds |
 | **Human control** | Agents auto-advance, user is passive | User confirms each round before next one starts |
-| **Equivalent stages** | Mode B (parallel) ≈ Stage 1 topic mining | Stage 1 mines from multiple sources in one CC session |
-| | Mode C (debate) ≈ Stage 2 cross-reference | Stage 2 cross-validates within the same CC context |
+| **Equivalent stages** | Mode B (parallel) = Stage 1 topic mining | Stage 1 mines from multiple sources in one CC session |
+| | Mode C (debate) = Stage 2 cross-reference | Stage 2 cross-validates within the same CC context |
 
-**Bottom line**: MAS uses N agents × full context each. CC Pipeline uses 1 agent × full context, and only passes summaries back. For creative tasks (writing articles), the lighter approach wins.
+**Bottom line**: MAS uses N agents x full context each. CC Pipeline uses 1 agent x full context, and only passes summaries back. For creative tasks (writing articles), the lighter approach wins.
 
 > 简单说：MAS 是 N 个 agent 各背一套上下文，CC Pipeline 是 1 个 CC 背上下文、只回传摘要。写文章这种创意任务，轻量方案更合适。
+
+---
 
 ## Why?
 
@@ -55,6 +103,8 @@ OpenClaw natively supports Multi-Agent System (MAS) via `sessions_spawn` — mul
 | Bot writes article | One shot, no human review | 3 rounds, user confirms each stage |
 | Bot runs Skill | Bot calls CC but can't get results back | Callback auto-pushes results to Discord |
 | Multi-turn | Each round is isolated, no context | sessionId persists, CC remembers everything |
+
+---
 
 ## Architecture
 
@@ -71,26 +121,22 @@ OpenClaw natively supports Multi-Agent System (MAS) via `sessions_spawn` — mul
 
 ```
 Round 1 (New task):
-Bot → POST /claude {prompt, callbackChannel}
-    → API auto-generates sessionId
-    → Worker fetches task → claude --print --session-id <id> "prompt"
-    → CC completes → Worker reports result
-    → Worker calls OpenClaw CLI → sends Discord message (with 📎 sessionId)
+Bot -> POST /claude {prompt, callbackChannel}
+    -> API auto-generates sessionId
+    -> Worker fetches task -> claude --print --session-id <id> "prompt"
+    -> CC completes -> Worker reports result
+    -> Worker calls OpenClaw CLI -> sends Discord message (with sessionId)
 
 Round 2+ (Resume):
-Bot → POST /claude {prompt, sessionId, callbackChannel}
-    → Worker fetches task → claude --print --resume --session-id <id> "prompt"
-    → CC resumes with full context from previous rounds
-    → Same callback flow
+Bot -> POST /claude {prompt, sessionId, callbackChannel}
+    -> Worker fetches task -> claude --print --resume --session-id <id> "prompt"
+    -> CC resumes with full context from previous rounds
+    -> Same callback flow
 ```
 
-## Quick Start
+---
 
-### Prerequisites
-
-- [OpenClaw](https://github.com/openclaw/openclaw) deployed (Discord Bot)
-- [Claude Code](https://claude.com/claude-code) installed (local CLI)
-- [openclaw-worker](https://github.com/AliceLJY/openclaw-worker) deployed (Task API + Worker)
+## Implementation Guide
 
 ### 1. Task API: Auto-generate sessionId
 
@@ -194,6 +240,8 @@ setInterval(() => {
 }, 60000);
 ```
 
+---
+
 ## Real-World Example: Content Alchemy in 3 Rounds
 
 > 用这个 Pipeline 实现了分段写公众号文章。详见 [examples/content-alchemy-3-round.md](examples/content-alchemy-3-round.md)。
@@ -205,6 +253,8 @@ setInterval(() => {
 | 3 | Stage 4-5: Write article + de-AI-ify | User reviews draft |
 
 Each round preserves full CC context via sessionId. User has complete control between rounds.
+
+---
 
 ## Pitfall Guide
 
@@ -226,7 +276,7 @@ const effectiveTimeout = (timeout || CONFIG.defaultTimeout) + 30000;
 
 **Symptom**: Round 2 `--resume` exits in 596ms. Session doesn't exist because Round 1 had no sessionId.
 
-> 第一轮没 sessionId → session 不存在 → 第二轮秒退。
+> 第一轮没 sessionId -> session 不存在 -> 第二轮秒退。
 
 **Fix**: API auto-generates when not provided.
 
@@ -260,29 +310,33 @@ const effectiveTimeout = (timeout || CONFIG.defaultTimeout) + 30000;
 
 > 结果 5 分钟就删，Worker 还没取走。
 
-**Fix**: Separate timers — 15 min for incomplete tasks, 30 min for completed results.
+**Fix**: Separate timers -- 15 min for incomplete tasks, 30 min for completed results.
+
+---
 
 ## How it Compares
 
-> Inspired by @win4r's two projects — one for agent orchestration, one for CC callbacks. This repo takes a different path.
+> Inspired by @win4r's two projects -- one for agent orchestration, one for CC callbacks. This repo takes a different path.
 >
 > 灵感来自 [@win4r](https://github.com/win4r) 的两个项目，一个解决 agent 协作，一个解决 CC 回调。本仓库走了不同的路。
 
 | | [claude-code-hooks](https://github.com/win4r/claude-code-hooks) | [team-tasks](https://github.com/win4r/team-tasks) | **This Repo** |
 |---|---|---|---|
-| **Solves** | CC finish → notify chat | Multi-agent task orchestration | CC multi-turn via Bot |
-| **Callback** | CC native hooks (Stop event) | N/A (manager polls agents) | Worker → docker exec → OpenClaw CLI |
+| **Solves** | CC finish -> notify chat | Multi-agent task orchestration | CC multi-turn via Bot |
+| **Callback** | CC native hooks (Stop event) | N/A (manager polls agents) | Worker -> docker exec -> OpenClaw CLI |
 | **Multi-turn** | Supports `--resume` but not the focus | N/A | Core feature (sessionId across rounds) |
 | **Agent count** | 1 CC instance | N agents (linear/DAG/debate) | 1 CC instance |
 | **Platform** | Telegram | Telegram | Discord |
 | **Human-in-loop** | No (auto-notify) | No (manager auto-advances) | Yes (user confirms each round) |
 
+---
+
 ## Related Projects
 
-- [openclaw-worker](https://github.com/AliceLJY/openclaw-worker) — Task API + Worker implementation
-- [openclaw-config](https://github.com/AliceLJY/openclaw-config) — Bot configuration backup (with patches)
-- [content-alchemy](https://github.com/AliceLJY/content-alchemy) — WeChat article writing skill (real-world use case)
-- [openclaw-mas-guide](https://github.com/AliceLJY/openclaw-mas-guide) — Multi-Agent System (MAS) configuration guide (retired, replaced by this repo)
+- [openclaw-worker](https://github.com/AliceLJY/openclaw-worker) -- Task API + Worker implementation
+- [openclaw-config](https://github.com/AliceLJY/openclaw-config) -- Bot configuration backup (with patches)
+- [content-alchemy](https://github.com/AliceLJY/content-alchemy) -- WeChat article writing skill (real-world use case)
+- [openclaw-mas-guide](https://github.com/AliceLJY/openclaw-mas-guide) -- Multi-Agent System (MAS) configuration guide (retired, replaced by this repo)
 
 ## License
 
