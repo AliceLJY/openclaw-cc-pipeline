@@ -331,6 +331,21 @@ const effectiveTimeout = (timeout || CONFIG.defaultTimeout) + 30000;
 
 ---
 
+## Tested Environment
+
+> This is the setup we run in production. Other combinations may work but are not tested.
+>
+> 以下是实际生产环境。其他组合可能可以用但没测过。
+
+| Item | Our Setup | Alternatives |
+|------|-----------|-------------|
+| **OS** | macOS (Apple Silicon M4) | Linux should work; Windows needs adaptation |
+| **Bot Model** | Claude Opus 4.6 / Gemini Pro 3 | Any model that can format HTTP requests |
+| **Claude Code** | Claude Code CLI (local, Max subscription) | Required -- the executor engine |
+| **Runtime** | Node.js 18+ | Required for Worker |
+| **Bot Framework** | [OpenClaw](https://github.com/openclaw/openclaw) (Docker) | Any bot that can POST HTTP |
+| **Hardware** | MacBook Air M4, 16GB | Any machine that runs Claude Code |
+
 ## Related Projects
 
 - [openclaw-worker](https://github.com/AliceLJY/openclaw-worker) -- Task API + Worker implementation
