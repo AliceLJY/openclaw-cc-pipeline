@@ -331,27 +331,27 @@ const effectiveTimeout = (timeout || CONFIG.defaultTimeout) + 30000;
 
 ---
 
-## Tested Environment
+## Author's Setup
 
-> This is the setup we run in production. Other combinations may work but are not tested.
->
-> 以下是实际生产环境。其他组合可能可以用但没测过。
+> 作者的开发环境，仅供参考，你可以用自己喜欢的工具替代
 
-| Item | Our Setup | Alternatives |
-|------|-----------|-------------|
-| **OS** | macOS (Apple Silicon M4) | Linux should work; Windows needs adaptation |
-| **Bot Model** | Claude Opus 4.6 / Gemini Pro 3 | Any model that can format HTTP requests |
-| **Claude Code** | Claude Code CLI (local, Max subscription) | Required -- the executor engine |
-| **Runtime** | Node.js 18+ | Required for Worker |
-| **Bot Framework** | [OpenClaw](https://github.com/openclaw/openclaw) (Docker) | Any bot that can POST HTTP |
-| **Hardware** | MacBook Air M4, 16GB | Any machine that runs Claude Code |
+| Item | Setup |
+|------|-------|
+| **Hardware** | MacBook Air M4, 16GB RAM |
+| **Models** | Claude Opus 4.6 (primary), Gemini Pro 3 (secondary), MiniMax M2.5 (scheduled tasks) |
+| **Runtime** | Bun, Docker |
+| **API** | [OpenClaw](https://github.com/openclaw/openclaw) subscription |
 
-## Related Projects
+*Author's setup — yours may differ.*
 
-- [openclaw-worker](https://github.com/AliceLJY/openclaw-worker) -- Task API + Worker implementation
-- [openclaw-config](https://github.com/AliceLJY/openclaw-config) -- Bot configuration backup (with patches)
-- [content-alchemy](https://github.com/AliceLJY/content-alchemy) -- WeChat article writing skill (real-world use case)
-- [openclaw-mas-guide](https://github.com/AliceLJY/openclaw-mas-guide) -- Multi-Agent System (MAS) configuration guide (retired, replaced by this repo)
+## Ecosystem
+
+> 这些项目配合使用效果更好
+
+| Project | What It Does |
+|---------|-------------|
+| [content-alchemy](https://github.com/AliceLJY/content-alchemy) | 7-stage content pipeline skill — the primary use case for this pipeline |
+| [openclaw-worker](https://github.com/AliceLJY/openclaw-worker) | Task API + Worker that relays tasks and delivers callbacks |
 
 ## Author
 
