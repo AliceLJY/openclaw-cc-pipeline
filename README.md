@@ -77,7 +77,7 @@ examples/
 
 ## Why not MAS?
 
-OpenClaw natively supports Multi-Agent System (MAS) via `sessions_spawn` -- multiple agents working in parallel. We [used MAS](https://github.com/AliceLJY/openclaw-mas-guide) for article research before, but retired it in favor of this pipeline:
+OpenClaw natively supports Multi-Agent System (MAS) via `sessions_spawn` -- multiple agents working in parallel. We used MAS for article research before, but retired it in favor of this pipeline:
 
 > OpenClaw 原生支持 MAS 多 agent 协作，但我们已经用 CC Pipeline 替代了它。
 
@@ -342,7 +342,7 @@ const effectiveTimeout = (timeout || CONFIG.defaultTimeout) + 30000;
 | **Runtime** | Bun, Docker |
 | **API** | [OpenClaw](https://github.com/openclaw/openclaw) subscription |
 
-*Author's setup — yours may differ.*
+> Author's setup — yours may differ.
 
 ## Ecosystem
 
@@ -355,7 +355,7 @@ const effectiveTimeout = (timeout || CONFIG.defaultTimeout) + 30000;
 
 ## Author
 
-Built by **小试AI** ([@AliceLJY](https://github.com/AliceLJY)) · WeChat Official Account: **我的AI小木屋**
+Built by **小试AI** ([@AliceLJY](https://github.com/AliceLJY)) · WeChat: **我的AI小木屋**
 
 > 医学出身，文化口工作，AI 野路子。公众号四大板块：AI实操手账 · AI踩坑实录 · AI照见众生 · AI随心分享
 
