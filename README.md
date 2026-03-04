@@ -1,4 +1,10 @@
-# OpenClaw CLI Pipeline
+# OpenClaw CLI Pipeline (Archived)
+
+> **This project has been archived.** The multi-turn orchestration protocol has been merged into [openclaw-cli-bridge](https://github.com/AliceLJY/openclaw-cli-bridge), which implements the protocol as a working OpenClaw plugin with auto-session continuation, slash commands, and agent tools.
+>
+> **本项目已归档。** 多轮编排协议已合并到 [openclaw-cli-bridge](https://github.com/AliceLJY/openclaw-cli-bridge)，该插件以可执行代码的形式实现了自动会话续接、斜杠命令和 agent 工具。
+
+---
 
 **An AI CLI Skill** for multi-turn orchestration via Discord Bot. Supports Claude Code, Codex, and Gemini CLI via a unified task-api mechanism.
 
