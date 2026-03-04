@@ -1,20 +1,20 @@
-# OpenClaw CC Pipeline
+# OpenClaw CLI Pipeline
 
-This project defines a Claude Code skill for orchestrating multi-turn tasks via a Discord Bot.
+This project defines an AI CLI skill for orchestrating multi-turn tasks via a Discord Bot. Supports Claude Code, Codex, and Gemini CLI.
 
-> 这个项目定义了一个 Claude Code Skill，通过 Discord Bot 调度多轮 CC 任务。
+> 这个项目定义了一个 AI CLI Skill，通过 Discord Bot 调度多轮 AI CLI 任务（支持 Claude Code / Codex / Gemini CLI）。
 
 ## Skill Definition
 
-The main skill file is **[SKILL.md](SKILL.md)**. It contains the complete multi-turn orchestration protocol that Claude Code follows when dispatched by an OpenClaw Bot.
+The main skill file is **[SKILL.md](SKILL.md)**. It contains the complete multi-turn orchestration protocol that AI CLIs follow when dispatched by an OpenClaw Bot.
 
 ## How It Works
 
 ```
-Discord User → OpenClaw Bot → Task API → Worker → Claude Code CLI → Callback → Discord
+Discord User → OpenClaw Bot → Task API → Worker → AI CLI (CC/Codex/Gemini) → Callback → Discord
 ```
 
-Each round preserves full CC context via `--session-id` / `--resume`. The user has explicit control between rounds.
+Each round preserves full context via session persistence (e.g., `--session-id` / `--resume`). The user has explicit control between rounds.
 
 ## Companion Projects
 
@@ -40,4 +40,4 @@ examples/
 
 - The `examples/` directory contains reference configurations. Do not modify these files during skill execution.
 - README.md contains detailed architecture documentation and pitfall guides for humans setting up the infrastructure.
-- SKILL.md is written in imperative style for Claude Code to follow. README.md is written in explanatory style for human readers.
+- SKILL.md is written in imperative style for AI CLIs to follow. README.md is written in explanatory style for human readers.

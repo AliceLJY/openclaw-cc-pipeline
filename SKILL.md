@@ -1,10 +1,10 @@
-# OpenClaw CC Pipeline Skill
+# OpenClaw CLI Pipeline Skill
 
-**Name**: openclaw-cc-pipeline
-**Description**: Orchestrate multi-turn Claude Code tasks via Discord Bot, with sessionId persistence and callback delivery.
-**When to use**: When a user asks you to run a multi-round pipeline through an OpenClaw Bot, dispatch tasks to a local Claude Code CLI via Task API, or execute the Content Alchemy 3-round article writing workflow.
+**Name**: openclaw-cli-pipeline
+**Description**: Orchestrate multi-turn AI CLI tasks via Discord Bot, with sessionId persistence and callback delivery. Supports Claude Code, Codex, and Gemini CLI.
+**When to use**: When a user asks you to run a multi-round pipeline through an OpenClaw Bot, dispatch tasks to a local AI CLI via Task API, or execute the Content Alchemy 3-round article writing workflow.
 
-> 当用户要求通过 Discord Bot 执行多轮 CC 任务时使用此 Skill。
+> 当用户要求通过 Discord Bot 执行多轮 AI CLI 任务时使用此 Skill。
 
 ---
 
@@ -18,7 +18,7 @@ Before starting, verify these components are running:
    - Verify: `launchctl list | grep worker` should show the worker service.
 3. **OpenClaw Bot** (local Docker, e.g. `openclaw-antigravity`) -- Receives user commands on Discord, formats API requests, displays callback results.
    - Verify: `docker ps | grep openclaw` should show the bot container running.
-4. **Claude Code CLI** installed locally.
+4. **AI CLI** installed locally (Claude Code, Codex, or Gemini CLI).
 5. **WORKER_TOKEN** environment variable or known auth token for Task API.
 
 If any prerequisite is missing, stop and inform the user which component needs to be set up. Point them to [openclaw-worker](https://github.com/AliceLJY/openclaw-worker) for Task API + Worker setup.
@@ -44,7 +44,7 @@ curl -s -X POST http://localhost:3456/claude \
   }'
 ```
 
-- **prompt**: The instruction for Claude Code to execute. Include the skill invocation (e.g., `/content-alchemy`) and explicit stop instruction (e.g., "Complete Stage 1 then stop, do not proceed to Stage 2.").
+- **prompt**: The instruction for the AI CLI to execute. Include the skill invocation (e.g., `/content-alchemy`) and explicit stop instruction (e.g., "Complete Stage 1 then stop, do not proceed to Stage 2.").
 - **callbackChannel**: The Discord channel ID where results should be delivered. Must be a server channel (DM channels do NOT work with OpenClaw CLI callback).
 - **timeout**: Set to 600000 (10 minutes). Never use 300000 -- real tasks routinely exceed 5 minutes by a few hundred milliseconds and get killed.
 
@@ -57,7 +57,7 @@ Record the `sessionId`. You will need it for all subsequent rounds.
 
 ### Step 2: Wait for Callback
 
-After Claude Code completes the task, the Worker automatically delivers results to the Discord channel via `docker exec` + OpenClaw CLI. The callback message includes:
+After the AI CLI completes the task, the Worker automatically delivers results to the Discord channel via `docker exec` + OpenClaw CLI. The callback message includes:
 
 ```
 **CC Task Done** (236s)
@@ -79,7 +79,7 @@ Record the user's feedback verbatim. It will be prepended to the next round's pr
 
 ### Step 4: Initiate Subsequent Rounds (Resume)
 
-Send the next task with the same `sessionId` to resume CC's context:
+Send the next task with the same `sessionId` to resume the AI CLI's context:
 
 ```bash
 curl -s -X POST http://localhost:3456/claude \
@@ -94,8 +94,8 @@ curl -s -X POST http://localhost:3456/claude \
 ```
 
 Key differences from Round 1:
-- **sessionId** is included -- the Worker will invoke `claude --print --resume --session-id <id>`, so CC retains full context from all previous rounds.
-- **User feedback** is prepended to the prompt so CC sees it immediately.
+- **sessionId** is included -- the Worker will invoke the AI CLI with session resume (e.g., `claude --print --resume --session-id <id>`), so the CLI retains full context from all previous rounds.
+- **User feedback** is prepended to the prompt so the AI CLI sees it immediately.
 
 Repeat Steps 2-4 for each subsequent round until the pipeline completes.
 
@@ -128,7 +128,7 @@ After completing mining-report.md, stop and output recommended angles for the us
 Do NOT proceed to Stage 2.
 ```
 
-**What CC does**: Searches multiple sources, generates `mining-report.md`, outputs angle recommendations.
+**What the AI CLI does**: Searches multiple sources, generates `mining-report.md`, outputs angle recommendations.
 
 **User interaction**: User picks an angle/direction, optionally provides additional guidance.
 
@@ -144,7 +144,7 @@ Execute source extraction, deep analysis, and cross-reference validation.
 After completing cross-reference-report.md, stop and let the user confirm data accuracy.
 ```
 
-**What CC does**: Extracts sources, analyzes, cross-validates claims. Outputs `cross-reference-report.md`.
+**What the AI CLI does**: Extracts sources, analyzes, cross-validates claims. Outputs `cross-reference-report.md`.
 
 **User interaction**: User confirms data accuracy, flags any corrections needed.
 
@@ -160,7 +160,7 @@ Write the article based on cross-reference results. Match the target section's s
 After completing article.md, output the full article text.
 ```
 
-**What CC does**: Writes full article, applies de-AI-ification pass. Outputs `article.md`.
+**What the AI CLI does**: Writes full article, applies de-AI-ification pass. Outputs `article.md`.
 
 **User interaction**: User reviews the draft. Pipeline complete.
 
@@ -198,7 +198,7 @@ To enable callback support in your OpenClaw Bot, add this to `openclaw.json`:
 }
 ```
 
-The `session-memory` hook enables session persistence within the Bot, which complements the CC-side `--session-id` persistence.
+The `session-memory` hook enables session persistence within the Bot, which complements the CLI-side `--session-id` persistence.
 
 ---
 
@@ -217,7 +217,7 @@ Core rules for the Bot:
 ## Troubleshooting
 
 ### Timeout kills task by milliseconds
-**Symptom**: CC ran 300,322ms but timeout was 300,000ms. Task killed, all progress lost.
+**Symptom**: AI CLI ran 300,322ms but timeout was 300,000ms. Task killed, all progress lost.
 **Fix**: Always add a 30s buffer in Worker config. Use 600s (10 min) as default timeout, not 300s.
 
 ### Round 2 --resume exits instantly (596ms)
@@ -226,7 +226,7 @@ Core rules for the Bot:
 **Fix**: Ensure Task API auto-generates sessionId when not provided. Verify the API response includes `sessionId` after Round 1.
 
 ### Callback never arrives
-**Symptom**: CC completed successfully but no message appears in Discord.
+**Symptom**: AI CLI completed successfully but no message appears in Discord.
 **Cause**: Bot container was restarting during callback (e.g., upgrade in progress). `docker exec` failed.
 **Fix**: Worker implements 3 retries with 5s intervals. Check `docker ps` to confirm bot container is up.
 
@@ -237,8 +237,8 @@ Core rules for the Bot:
 
 ### Session not found across directories
 **Symptom**: Worker created the session but manual `claude --resume` from a different directory cannot find it.
-**Cause**: Claude Code sessions are scoped by working directory.
-**Fix**: Always start CC from the same working directory. Configure Worker's `cwd` to a consistent path.
+**Cause**: AI CLI sessions are scoped by working directory (applies to Claude Code; other CLIs may differ).
+**Fix**: Always start the AI CLI from the same working directory. Configure Worker's `cwd` to a consistent path.
 
 ### Completed results disappear before Worker fetches them
 **Symptom**: Task API shows task completed but Worker gets empty result.

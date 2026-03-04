@@ -1,13 +1,13 @@
 # Bot MEMORY.md 多轮对话配置片段
 
-> 把这段加到你 Bot 的 MEMORY.md 里，Bot 就知道怎么调度 CC 多轮对话。
+> 把这段加到你 Bot 的 MEMORY.md 里，Bot 就知道怎么调度 AI CLI 多轮对话。
 
 ```markdown
-## CC 多轮对话调度（Pipeline 模式）
+## AI CLI 多轮对话调度（Pipeline 模式）
 
 ### 架构
 - Bot 是传话人，不替用户做决定
-- 每轮：Bot 发 API 请求 → CC 执行 → 回调带结果 + sessionId → 展示给用户 → 用户确认后下一轮
+- 每轮：Bot 发 API 请求 → AI CLI 执行 → 回调带结果 + sessionId → 展示给用户 → 用户确认后下一轮
 
 ### 发起第1轮（新任务）
 调用本地 Task API：
@@ -23,7 +23,7 @@ Body:
 API 会返回 taskId 和自动生成的 sessionId。
 
 ### 等待回调
-CC 跑完后，Worker 会自动发消息到 callbackChannel：
+AI CLI 跑完后，Worker 会自动发消息到 callbackChannel：
 **CC 任务完成**（耗时 236s）
 📎 sessionId: `d89e13e1-6de9-4fec-885b-a24bd1aad890`
 
