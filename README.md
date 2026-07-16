@@ -1,8 +1,15 @@
 # OpenClaw CLI Pipeline (Archived)
 
-> **This project has been archived.** The multi-turn orchestration protocol has been merged into [openclaw-cli-bridge](https://github.com/AliceLJY/openclaw-cli-bridge), which implements the protocol as a working OpenClaw plugin with auto-session continuation, slash commands, and agent tools.
+> **Historical archive.** The installation and architecture below describe the
+> final v1.0.0 design and are not current setup instructions. For OpenClaw's
+> native external-CLI path, see [ACP](https://docs.openclaw.ai/cli/acp). Alice's
+> current custom Docker-to-host path lives in
+> [openclaw-tunnel](https://github.com/AliceLJY/openclaw-tunnel).
 >
-> **本项目已归档。** 多轮编排协议已合并到 [openclaw-cli-bridge](https://github.com/AliceLJY/openclaw-cli-bridge)，该插件以可执行代码的形式实现了自动会话续接、斜杠命令和 agent 工具。
+> **本项目已归档。** 下文安装与架构只描述最终 v1.0.0 历史设计，不应直接照搬。
+> OpenClaw 当前原生外部 CLI 路径请看 [ACP](https://docs.openclaw.ai/cli/acp)；
+> Alice 当前自定义 Docker↔宿主机路径见
+> [openclaw-tunnel](https://github.com/AliceLJY/openclaw-tunnel)。
 
 ---
 
